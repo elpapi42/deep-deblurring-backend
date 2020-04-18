@@ -6,6 +6,9 @@
 
 from flask import make_response, jsonify
 
+from .home import HomeController
+from .inference import InferenceController
+
 
 def format_response(message, status, message_type='message'):
     """
@@ -18,6 +21,3 @@ def format_response(message, status, message_type='message'):
         jsonify({message_type: message}),
         status,
     )
-
-
-from .home import HomeController
