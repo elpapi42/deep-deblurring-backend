@@ -3,7 +3,14 @@
 
 """Logic for inference controller."""
 
+from io import BytesIO
+import requests
+import base64
+
+import numpy as np
+from PIL import Image
 from flask import make_response, request, jsonify
+from flask import current_app as app
 from flask_restful import Resource
 
 from deblurrer_api.api.schemas import InferenceSchema
@@ -22,7 +29,7 @@ class InferenceController(Resource):
         """
         input_schema = InferenceSchema()
 
-        # Deserialize and validates request json body
+        # Validates request json body
         try:
             input_data = input_schema.load(request.json)
         except ValidationError as err:
@@ -31,7 +38,19 @@ class InferenceController(Resource):
                 400,
             )
 
+        # Decodes image as list
+        image = input_data.get('image')
+        image = Image.open(BytesIO(base64.b64decode(image)))
+        image = np.asarray(image)
+        image = np.stack([image], axis=0)
+        image = image.tolist()
+
+        output = requests.post(
+            url=app.config['SERVING_URL'],
+            json={'instances': image},
+        ).json()
+
         return make_response(
-            jsonify(input_data),
+            output,
             200,
         )

@@ -3,3 +3,6 @@ flask-restful
 flask-cors
 flask-marshmallow
 python-dotenv
+pillow
+numpy
+requests
