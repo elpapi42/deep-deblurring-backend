@@ -6,9 +6,9 @@
 
 from flask_restful import Api
 
-from . import api_bp
-from .controllers import HomeController
+from deblurrer_api.api import api_bp
+from deblurrer_api.api.controllers import InferenceController
 
 api = Api(api_bp)
 
-api.add_resource(HomeController, '/home/')
+api.add_resource(InferenceController, '/inference/')
