@@ -8,7 +8,7 @@ from marshmallow import validate
 from deblurrer_api import marsh
 
 
-class InferenceSchema(marsh.Schema):
+class ImageSchema(marsh.Schema):
     """Defines and validates Base64 input image."""
 
     image = marsh.String(required=True, validate=validate.Length(1))
