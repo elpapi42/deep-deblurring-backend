@@ -10,10 +10,12 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-
-from deblurrer_api.api import api_bp
+from flask_marshmallow import Marshmallow
 
 cors = CORS()
+marsh = Marshmallow()
+
+from deblurrer_api.api import api_bp
 
 
 def create_app(testing=False):
@@ -44,6 +46,7 @@ def create_app(testing=False):
 
     # Init Plugins
     cors.init_app(app)
+    marsh.init_app(app)
 
     with app.app_context():
         app.register_blueprint(api_bp, url_prefix='/api')
