@@ -2,6 +2,7 @@ flask==1.1.1
 flask-restful
 flask-cors
 flask-marshmallow
+flask-limiter
 python-dotenv
 pillow
 numpy

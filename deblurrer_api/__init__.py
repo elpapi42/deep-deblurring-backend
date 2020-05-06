@@ -11,9 +11,15 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 cors = CORS()
 marsh = Marshmallow()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=['5/minute', '1/second'],
+)
 
 from deblurrer_api.api import api_bp
 
@@ -47,6 +53,7 @@ def create_app(testing=False):
     # Init Plugins
     cors.init_app(app)
     marsh.init_app(app)
+    limiter.init_app(app)
 
     with app.app_context():
         app.register_blueprint(api_bp, url_prefix='/api')
