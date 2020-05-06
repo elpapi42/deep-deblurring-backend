@@ -7,4 +7,4 @@ WORKDIR /deep-deblurring-backend
 
 RUN pip install -r requirements.txt
 
-CMD ["gunicorn", "--config", "gunicorn.py", "deblurrer_api:create_app"]
+CMD ["gunicorn", "--config", "gunicorn.py", "deblurrer_api:create_app()"]
