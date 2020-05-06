@@ -1,0 +1,11 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.vscode
+tests
+env
+.gitignore
+setup.py
