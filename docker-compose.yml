@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+    deblurring-backend:
+        build: .
+        image: deblurring-backend:latest
+        ports:
+            - 8000:8000
+        networks:
+            - deep-deblurring
+        volumes:
+            - C:/Users/whitm/Desktop/CodeProjects/deep-deblurring-backend:/deep-deblurring-backend
+        container_name: deblurring-backend
+    
+networks:
+    deep-deblurring:
+        external: true
