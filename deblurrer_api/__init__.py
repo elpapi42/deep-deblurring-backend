@@ -33,8 +33,8 @@ def create_app(testing=False):
     load_dotenv(dotenv_path)
 
     # Setup default production config
-    app = Flask('todolist', instance_relative_config=True)
-    app.config.from_object('config')
+    app = Flask('deblurrer', instance_relative_config=True)
+    app.config.from_object('flask_config')
 
     # Enable testing features when unit testing
     if (testing):
