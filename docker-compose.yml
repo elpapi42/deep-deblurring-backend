@@ -1,5 +1,16 @@
 version: "3.7"
 services:
+
+    deblurring-database:
+        image: postgres:latest
+        environment:
+            - POSTGRES_PASSWORD=root
+        ports:
+            - 5432:5432
+        networks: 
+            - deep-deblurring
+        container_name: deblurring-database
+
     deblurring-backend:
         build: .
         image: deblurring-backend:latest
@@ -8,7 +19,9 @@ services:
         networks:
             - deep-deblurring
         volumes:
-            - C:/Users/whitm/Desktop/CodeProjects/deep-deblurring-backend:/deep-deblurring-backend
+            - .:/deep-deblurring-backend
+        depends_on:
+            - deblurring-database
         container_name: deblurring-backend
     
 networks:
