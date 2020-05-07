@@ -3,6 +3,7 @@
 
 """Logic for inference controller."""
 
+from requests.exceptions import ConnectionError
 import requests
 import base64
 import imghdr
@@ -52,13 +53,19 @@ class InferenceController(Resource):
 
         image = str(base64.b64encode(image), encoding='utf-8')
 
-        # Request predictions to inference engine
-        preds = requests.post(
-            url=app.config['SERVING_URL'],
-            json={'instances': [
-                [{'b64': r'{string}'.format(string=image)}],
-            ]},
-        ).json()
+        try:
+            # Request predictions to inference engine
+            preds = requests.post(
+                url=app.config['SERVING_URL'],
+                json={'instances': [
+                    [{'b64': r'{string}'.format(string=image)}],
+                ]},
+            ).json()
+        except ConnectionError:
+            abort(
+                500,
+                message='Inference engine unavailable'
+            )
 
         # Validates inference engine reponse
         if (preds.get('error') is not None):
