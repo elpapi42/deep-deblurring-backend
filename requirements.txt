@@ -8,3 +8,4 @@ pillow
 numpy
 requests
 gunicorn
+cloudinary
