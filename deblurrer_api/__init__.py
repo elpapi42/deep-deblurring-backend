@@ -7,6 +7,7 @@
 import os
 from os.path import join, dirname
 
+import cloudinary
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
@@ -54,6 +55,12 @@ def create_app(testing=False):
     cors.init_app(app)
     marsh.init_app(app)
     limiter.init_app(app)
+
+    cloudinary.config(
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key = os.environ.get('CLOUDINARY_API_KEY'),
+        api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
+    )
 
     with app.app_context():
         app.register_blueprint(api_bp, url_prefix='/api')

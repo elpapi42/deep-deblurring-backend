@@ -7,10 +7,12 @@ from requests.exceptions import ConnectionError
 import requests
 import base64
 import imghdr
+import uuid
 
 from flask import make_response, request, jsonify
 from flask import current_app as app
 from flask_restful import Resource, abort
+from cloudinary import uploader
 
 
 def is_image(file_bytes):
@@ -36,22 +38,22 @@ class InferenceController(Resource):
         Returns:
             json response with the result of inference
         """
-        image = request.files.get('image')
-        if (image is None):
+        input_image = request.files.get('image')
+        if (input_image is None):
             abort(
                 400,
                 message='Image was not supplied'
             )
         
         # Checks if the file is an image
-        image = image.read()
-        if (not is_image(image)):
+        input_image = input_image.read()
+        if (not is_image(input_image)):
             abort(
                 400,
                 message='Invalid file'
             )
 
-        image = str(base64.b64encode(image), encoding='utf-8')
+        image = str(base64.b64encode(input_image), encoding='utf-8')
 
         try:
             # Request predictions to inference engine
@@ -76,10 +78,29 @@ class InferenceController(Resource):
 
         # Base64URL to Base64
         output_image = preds['predictions'][0]
-        output_image = output_image.replace('-', '+')
-        output_image = output_image.replace('_', '/')
+        output_image = base64.urlsafe_b64decode(output_image)
+
+        # Identifier of the images stored in cloudinary
+        resource_id = uuid.uuid4()
+
+        # Upload the input image
+        blur_resp = uploader.upload(
+            bytearray(input_image),
+            public_id=str(resource_id),
+            folder='/blur',
+        )
+
+        # Upload the generated image
+        gen_resp = uploader.upload(
+            bytearray(output_image),
+            public_id=str(resource_id),
+            folder='/generated',
+        )
 
         return make_response(
-            jsonify({'image': output_image}),
+            jsonify({
+                'blur_image': blur_resp.get('secure_url'),
+                'gen_image': gen_resp.get('secure_url'),
+            }),
             200,
         )
