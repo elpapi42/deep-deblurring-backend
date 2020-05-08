@@ -24,7 +24,7 @@ limiter = Limiter(
     default_limits=['5/minute', '1/second'],
 )
 
-from deblurrer_api.api import api_bp
+from deblurrer.api import api_bp
 
 
 def create_app(testing=False):

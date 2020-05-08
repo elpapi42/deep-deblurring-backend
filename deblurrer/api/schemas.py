@@ -5,7 +5,7 @@
 
 from marshmallow import validate
 
-from deblurrer_api import marsh
+from deblurrer import marsh
 
 
 class ImageSchema(marsh.Schema):
