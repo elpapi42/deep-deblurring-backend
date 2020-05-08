@@ -3,3 +3,4 @@
 
 """Contains database models."""
 
+from deblurrer.api.models.example import Example

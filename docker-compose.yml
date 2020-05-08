@@ -8,8 +8,8 @@ services:
             POSTGRES_PASSWORD: root
             POSTGRES_DB: deblurrer
         ports:
-            - 5432:5432
-        networks: 
+            - 6543:5432
+        networks:
             - deep-deblurring
         container_name: deblurring-database
 
