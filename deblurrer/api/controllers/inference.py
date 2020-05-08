@@ -84,14 +84,14 @@ class InferenceController(Resource):
         resource_id = uuid.uuid4()
 
         # Upload the input image
-        blur_resp = uploader.upload(
+        input_resp = uploader.upload(
             bytearray(input_image),
             public_id=str(resource_id),
-            folder='/blur',
+            folder='/input',
         )
 
         # Upload the generated image
-        gen_resp = uploader.upload(
+        output_resp = uploader.upload(
             bytearray(output_image),
             public_id=str(resource_id),
             folder='/generated',
@@ -99,8 +99,8 @@ class InferenceController(Resource):
 
         return make_response(
             jsonify({
-                'blur_image': blur_resp.get('secure_url'),
-                'gen_image': gen_resp.get('secure_url'),
+                'input_image': input_resp.get('secure_url'),
+                'output_image': output_resp.get('secure_url'),
             }),
             200,
         )
