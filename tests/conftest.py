@@ -7,6 +7,8 @@
 import os
 import pytest
 import requests
+import pathlib
+from io import FileIO
 
 from deblurrer import create_app, db
 
@@ -15,16 +17,15 @@ def client():
     """Creates an http client and server for make requests."""
     app = create_app(config='flask_config.Testing')
 
-    # Setup teesting config
-    app.debug = True
-    app.testing = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'TESTING_DATABASE_URI',
-    )
-
     with app.app_context():
         db.drop_all()
         db.create_all()
 
     return app.test_client()
-    
+
+
+@pytest.fixture
+def image():
+    """Loads and returns test image."""
+    image_path = pathlib.Path(os.path.dirname(__file__))/'resources'/'test_image.jpg'
+    return FileIO(str(image_path))
