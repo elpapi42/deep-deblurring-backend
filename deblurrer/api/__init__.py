@@ -7,4 +7,4 @@ from flask import Blueprint
 
 api_bp = Blueprint('api_bp', __name__)
 
-from deblurrer_api.api import routes
+from deblurrer.api import routes
