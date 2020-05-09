@@ -13,7 +13,7 @@ from deblurrer import create_app, db
 @pytest.fixture
 def client():
     """Creates an http client and server for make requests."""
-    app = create_app()
+    app = create_app(config='flask_config.Testing')
 
     # Setup teesting config
     app.debug = True

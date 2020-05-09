@@ -27,9 +27,12 @@ limiter = Limiter(
 from deblurrer.api import api_bp
 
 
-def create_app():
+def create_app(config='flask_config.Production'):
     """
     Init core application.
+
+    Args:
+        config: can be import to object or the object itself
 
     Returns:
         Application instance
@@ -40,7 +43,7 @@ def create_app():
 
     # Setup default production config
     app = Flask('deblurrer', instance_relative_config=True)
-    app.config.from_object('flask_config')
+    app.config.from_object(config)
 
     # Init Cloudinary credentials
     cloudinary.config(
