@@ -14,6 +14,9 @@ from flask import current_app as app
 from flask_restful import Resource, abort
 from cloudinary import uploader
 
+from deblurrer.api.models import Example
+from deblurrer import db
+
 
 def is_image(file_bytes):
     """
@@ -84,23 +87,33 @@ class InferenceController(Resource):
         resource_id = uuid.uuid4()
 
         # Upload the input image
-        blur_resp = uploader.upload(
+        input_resp = uploader.upload(
             bytearray(input_image),
             public_id=str(resource_id),
-            folder='/blur',
+            folder='/input',
         )
 
         # Upload the generated image
-        gen_resp = uploader.upload(
+        output_resp = uploader.upload(
             bytearray(output_image),
             public_id=str(resource_id),
             folder='/generated',
         )
 
+        # Create and commit new example to append to the database
+        example = Example(
+            resource_id,
+            input_resp.get('secure_url'),
+            output_resp.get('secure_url'),
+        )
+        db.session.add(example)
+        db.session.commit()
+
         return make_response(
             jsonify({
-                'blur_image': blur_resp.get('secure_url'),
-                'gen_image': gen_resp.get('secure_url'),
+                'input_image': input_resp.get('secure_url'),
+                'output_image': output_resp.get('secure_url'),
+                'resource_id': str(resource_id),
             }),
             200,
         )

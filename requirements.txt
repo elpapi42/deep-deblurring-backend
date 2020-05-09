@@ -3,9 +3,10 @@ flask-restful
 flask-cors
 flask-marshmallow
 flask-limiter
+flask-sqlalchemy
+flask-migrate
 python-dotenv
-pillow
-numpy
 requests
 gunicorn
+psycopg2
 cloudinary

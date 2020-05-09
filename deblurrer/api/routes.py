@@ -6,8 +6,8 @@
 
 from flask_restful import Api
 
-from deblurrer_api.api import api_bp
-from deblurrer_api.api.controllers import InferenceController
+from deblurrer.api import api_bp
+from deblurrer.api.controllers import InferenceController
 
 api = Api(api_bp)
 

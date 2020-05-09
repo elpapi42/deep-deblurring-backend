@@ -5,10 +5,10 @@ __pycache__
 *.pyd
 .Python
 .vscode
-tests
 .flaskenv
 .gitignore
 setup.py
 wsgi.py
 Dockerfile
+tests
 docker-compose.yml
