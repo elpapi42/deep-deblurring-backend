@@ -29,3 +29,9 @@ def image():
     """Loads and returns test image."""
     image_path = pathlib.Path(os.path.dirname(__file__))/'resources'/'test_image.jpg'
     return FileIO(str(image_path))
+
+@pytest.fixture
+def testfile():
+    """Loads and returns test file."""
+    file_path = pathlib.Path(os.path.dirname(__file__))/'resources'/'test_file.txt'
+    return FileIO(str(file_path))
