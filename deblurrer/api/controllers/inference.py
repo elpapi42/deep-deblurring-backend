@@ -18,19 +18,6 @@ from deblurrer.api.models import Example
 from deblurrer import db
 
 
-def is_image(file_bytes):
-    """
-    Check if the supplied bytes are from an image file.
-
-    Args:
-        file_bytes (bytes): Bytes of the file to check
-
-    Returns:
-        True if the file is validated as an image
-    """
-    return imghdr.what(file=None, h=file_bytes) in {'png', 'jpg', 'jpeg'}
-
-
 class InferenceController(Resource):
     """Call the serving API for inference over the supplied image."""
 
@@ -41,22 +28,71 @@ class InferenceController(Resource):
         Returns:
             json response with the result of inference
         """
-        input_image = request.files.get('image')
-        if (input_image is None):
+        input_image = self.validate_image(request.files.get('image'))
+        
+        # Sends image to inference engine for processing
+        output_image = self.predict_image(input_image)
+        
+        # Upload the images to cloudinary
+        rid, input_url, output_url = self.upload_to_cloudinary(
+            input_image,
+            output_image,
+        )
+
+        # Create and commit new example to the database
+        example = Example(rid, input_url, output_url)
+        db.session.add(example)
+        db.session.commit()
+
+        return make_response(
+            jsonify({
+                'input_image': input_url,
+                'output_image': output_url,
+                'resource_id': str(rid),
+            }),
+            200,
+        )
+
+    def validate_image(self, image_file):
+        """
+        Verify the input file is a valid image.
+
+        Abort the request in case the file cant be verified
+
+        Args:
+            image_file (FileIO): file to validate
+
+        Returns:
+            validated image file bytes
+        """
+        if (image_file is None):
             abort(
                 400,
-                message='Image was not supplied'
+                message='Image was not supplied',
             )
         
-        # Checks if the file is an image
-        input_image = input_image.read()
-        if (not is_image(input_image)):
+        # Checks if the file is an image of supported types
+        image_file = image_file.read()
+        if (not imghdr.what(file=None, h=image_file) in {'png', 'jpg', 'jpeg'}):
             abort(
                 400,
-                message='Invalid file'
+                message='Invalid file',
             )
 
-        image = str(base64.b64encode(input_image), encoding='utf-8')
+        return image_file
+
+    def predict_image(self, image):
+        """
+        Send image to deblurring inference engine.
+
+        Args:
+            image (bytes): Image to deblur
+
+        Returns
+            Deblurred image bytes
+        """
+        # Encode the image bytes as b64 string
+        image = str(base64.b64encode(image), encoding='utf-8')
 
         try:
             # Request predictions to inference engine
@@ -78,12 +114,25 @@ class InferenceController(Resource):
                 500,
                 message='Inference engine error',
             )
+        # Inference engine returns URL Safe B64 Encoding
+        # decodes Base64URL to Bytes
+        image = preds['predictions'][0]
+        image = base64.urlsafe_b64decode(image)
 
-        # Base64URL to Base64
-        output_image = preds['predictions'][0]
-        output_image = base64.urlsafe_b64decode(output_image)
+        return image
 
-        # Identifier of the images stored in cloudinary
+    def upload_to_cloudinary(self, input_image, output_image):
+        """
+        Upload to images to cloudinary static host provider.
+
+        Args:
+            input_image (bytes): Image received as request input
+            output_image (bytes): Output of the inferece engine
+        
+        Returns:
+            uuid and URL of the uploaded files
+        """
+        # Identifier for the images
         resource_id = uuid.uuid4()
 
         # Upload the input image
@@ -100,20 +149,8 @@ class InferenceController(Resource):
             folder='/generated',
         )
 
-        # Create and commit new example to append to the database
-        example = Example(
+        return (
             resource_id,
             input_resp.get('secure_url'),
             output_resp.get('secure_url'),
-        )
-        db.session.add(example)
-        db.session.commit()
-
-        return make_response(
-            jsonify({
-                'input_image': input_resp.get('secure_url'),
-                'output_image': output_resp.get('secure_url'),
-                'resource_id': str(resource_id),
-            }),
-            200,
         )
