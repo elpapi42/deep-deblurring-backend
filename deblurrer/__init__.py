@@ -8,6 +8,8 @@ import os
 from os.path import join, dirname
 
 import cloudinary
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
@@ -44,6 +46,12 @@ def create_app(config='flask_config.Production'):
     # Setup default production config
     app = Flask('deblurrer', instance_relative_config=True)
     app.config.from_object(config)
+
+    # Sentry config
+    sentry_sdk.init(
+        dsn=os.environ.get('SENTRY_DNS'),
+        integrations=[FlaskIntegration()]
+    )
 
     # Init Cloudinary credentials
     cloudinary.config(
