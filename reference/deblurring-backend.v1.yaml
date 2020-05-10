@@ -1,0 +1,93 @@
+openapi: 3.0.0
+info:
+  title: deblurring-backend
+  version: '1.0'
+  description: Deep Deblurring API
+  contact:
+    name: Whitman Bohorquez
+    email: whitman-2@hotmail.com
+    url: 'https://www.linkedin.com/in/whitmanbohorquez/'
+  license:
+    name: MIT
+    url: 'https://github.com/ElPapi42/deep-deblurring-backend/blob/master/LICENSE'
+servers:
+  - url: 'http://localhost:8000'
+    description: Local Testing
+paths:
+  /api/inference:
+    post:
+      summary: ''
+      operationId: post-api-inference
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  input_url:
+                    type: string
+                    format: uri
+                  output_url:
+                    type: string
+                    format: uri
+                  resource_id:
+                    type: string
+                    format: uuid
+              examples:
+                example-1:
+                  value:
+                    input_image: 'https://res.cloudinary.com/test.jpg'
+                    output_image: 'https://res.cloudinary.com/test.jpg'
+                    resource_id: 5be973bc-1ecf-4ecb-9a55-9596a1f40b94
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  'message ':
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Image was not supplied
+                example-2:
+                  value:
+                    message: Invalid file
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Inference engine unavailable
+                example-2:
+                  value:
+                    message: Inference engine error
+      description: Takes the input Image and process it using the Deblurring Engine
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+              required:
+                - image
+            examples: {}
+        description: Supplies the image to be processed
+components:
+  schemas: {}
+  securitySchemes: {}
