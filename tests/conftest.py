@@ -39,13 +39,17 @@ def testfile():
     file_path = pathlib.Path(os.path.dirname(__file__))/'resources'/'test_file.txt'
     return FileIO(str(file_path))
 
-def patch_inference_request(image_bytes, monkeypatch):
+def patch_inference_request(image, monkeypatch):
     """
     Patch the external requests of inference endpoint.
 
     Reduce boilerplate when writing test that require
     the creation of an image pair example
     """
+    # Bytes from test image for mock the inference engine response
+    image_bytes = image.read()
+    image.seek(0)
+
     # Mock inference engine response
     class MockResponse(object):
         def __init__(self):

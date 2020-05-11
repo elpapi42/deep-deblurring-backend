@@ -9,11 +9,8 @@ from tests.conftest import patch_inference_request
 
 
 def test_inference(client, image, monkeypatch):
-    # Bytes from test image for mock the inference engine response
-    image_bytes = image.read()
-    image.seek(0)
-
-    patch_inference_request(image_bytes, monkeypatch)
+    # Patch the external requests
+    patch_inference_request(image, monkeypatch)
 
     # Make the request to the api
     file = {'image': image}
