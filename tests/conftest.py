@@ -9,6 +9,9 @@ import pytest
 import requests
 import pathlib
 from io import FileIO
+from base64 import urlsafe_b64encode
+
+import cloudinary
 
 from deblurrer import create_app, db
 
@@ -35,3 +38,35 @@ def testfile():
     """Loads and returns test file."""
     file_path = pathlib.Path(os.path.dirname(__file__))/'resources'/'test_file.txt'
     return FileIO(str(file_path))
+
+def patch_inference_request(image_bytes, monkeypatch):
+    """
+    Patch the external requests of inference endpoint.
+
+    Reduce boilerplate when writing test that require
+    the creation of an image pair example
+    """
+    # Mock inference engine response
+    class MockResponse(object):
+        def __init__(self):
+            self.status_code = 200
+
+        def json(self):
+            return {
+                'predictions': [urlsafe_b64encode(image_bytes)],
+            }
+
+    def mock_post(url, json):
+        return MockResponse()
+    
+    # Path post function
+    monkeypatch.setattr(requests, 'post', mock_post)
+
+    # Mock cloudinary responses
+    def mock_upload(file, public_id, folder):
+        return {
+            'secure_url': 'https://res.cloudinary.com/test.jpg'
+        }
+
+    # Path upload method
+    monkeypatch.setattr(cloudinary.uploader, 'upload', mock_upload)
