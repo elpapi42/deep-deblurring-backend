@@ -35,9 +35,8 @@ class ScoreController(Resource):
                 payload=str(errors),
             )
 
-        try:
-            example = Example.query.get(request.json.get('resource_id'))
-        except NoResultFound:
+        example = Example.query.get(request.json.get('resource_id'))
+        if (example is None):
             abort(404, message='Not found')
 
         example.score = request.json.get('score')
