@@ -3,12 +3,13 @@
 
 """Marshmallow schemas for the API."""
 
-from marshmallow import validate
+from marshmallow.validate import Range
 
 from deblurrer import marsh
 
 
-class ImageSchema(marsh.Schema):
-    """Defines and validates Base64 input image."""
+class ScoreSchema(marsh.Schema):
+    """Validates score assignament request json body."""
 
-    image = marsh.String(required=True, validate=validate.Length(1))
+    resource_id = marsh.UUID(required=True)
+    score = marsh.Integer(required=True, validate=Range(min=0, max=5))
