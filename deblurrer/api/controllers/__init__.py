@@ -4,3 +4,4 @@
 """Contains api controllers."""
 
 from deblurrer.api.controllers.inference import InferenceController
+from deblurrer.api.controllers.score import ScoreController
