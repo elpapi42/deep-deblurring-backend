@@ -88,6 +88,61 @@ paths:
                 - image
             examples: {}
         description: Supplies the image to be processed
+  /api/score:
+    put:
+      summary: ''
+      operationId: put-api-score
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  payload:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Invalid request body arguments
+                    payload: "{'resource_id': ['Not a valid UUID.']}"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Not found
+      description: Update the Subjective User Score of a pair of images processed by the API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resource_id:
+                  type: string
+                  format: uuid
+                score:
+                  type: integer
+                  format: int32
+                  maximum: 5
+            examples:
+              example-1:
+                value:
+                  resource_id: 5be973bc-1ecf-4ecb-9a55-9596a1f40b94
+                  score: 3
 components:
   schemas: {}
   securitySchemes: {}
