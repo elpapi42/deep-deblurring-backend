@@ -1,1 +1,1 @@
-web: gunicorn --config gunicorn_config.py deblurrer:create_app()
+web: gunicorn --config gunicorn_config.py deblurrer:create_app
