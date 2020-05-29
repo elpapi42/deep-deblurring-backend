@@ -1,1 +1,1 @@
-web: gunicorn --config gunicorn_config.py deblurrer:create_app
+web: gunicorn -b 127.0.0.1:$PORT -w 4 deblurrer:create_app
