@@ -1,1 +1,1 @@
-web: gunicorn -w 4 "todolist:create_app()"
+web: gunicorn -w 4 "deblurrer:create_app()"
