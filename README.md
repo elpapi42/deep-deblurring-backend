@@ -6,7 +6,7 @@ This Flask API has two main objectives regarding Deep Deblurring Project:
 
 On the next visualization, the block named "Flask API" represents this repository codebase, that interacts with almost every major component of Deep Deblurring System Architecture, so this is the central component that allows this service to exists
 
-![Image](https://github.com/ElPapi42/deep-deblurring-serving/blob/master/SystemArchitecture.png "Arch")
+![Image](https://github.com/ElPapi42/deep-deblurring/blob/master/system_architecture.png "Arch")
 
 This API will have two main consumers, our Web Application, and Third-party costumers that integrate our services with their applications.
 
