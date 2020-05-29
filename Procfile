@@ -1,1 +1,1 @@
-web: gunicorn -b 127.0.0.1:$PORT -w 4 deblurrer:create_app
+web: gunicorn -w 4 "todolist:create_app()"
