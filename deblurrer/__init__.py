@@ -15,12 +15,14 @@ from flask import Flask
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 cors = CORS()
 marsh = Marshmallow()
 db = SQLAlchemy()
+migrate = Migrate()
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=['5/minute', '1/second'],
@@ -64,6 +66,7 @@ def create_app(config='flask_config.Production'):
     cors.init_app(app)
     marsh.init_app(app)
     db.init_app(app)
+    migrate.init_app(app, db)
     limiter.init_app(app)
 
     with app.app_context():
