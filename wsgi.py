@@ -3,7 +3,7 @@
 
 """wsgi server for local testing."""
 
-from deblurrer_api import create_app
+from deblurrer import create_app
 
 app = create_app()
 
