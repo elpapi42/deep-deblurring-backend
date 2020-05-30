@@ -1,0 +1,1 @@
+web: gunicorn -w 4 "deblurrer:create_app()"
