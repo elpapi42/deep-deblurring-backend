@@ -14,6 +14,7 @@ class Production(object):
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI')
+    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL')
 
     SERVING_URL = os.environ.get('SERVING_URL')
 
@@ -23,3 +24,4 @@ class Testing(Production):
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TESTING_DATABASE_URI')
+    RATELIMIT_STORAGE_URL = os.environ.get('TESTING_REDIS_URL')
