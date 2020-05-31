@@ -7,8 +7,6 @@ services:
         image: redis:latest
         ports:
             - 7001:6379
-        networks:
-            - deep-deblurring
         container_name: deblurring-redis
 
     deblurring-database:
@@ -19,8 +17,6 @@ services:
             POSTGRES_DB: deblurrer
         ports:
             - 6543:5432
-        networks:
-            - deep-deblurring
         container_name: deblurring-database
 
     deblurring-backend:
@@ -28,15 +24,10 @@ services:
         image: deblurring-backend:latest
         ports:
             - 8000:8000
-        networks:
-            - deep-deblurring
         volumes:
             - .:/deep-deblurring-backend
         depends_on:
             - deblurring-database
             - deblurring-redis
         container_name: deblurring-backend
-    
-networks:
-    deep-deblurring:
-        external: true
+
