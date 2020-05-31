@@ -24,3 +24,4 @@ class Testing(Production):
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TESTING_DATABASE_URI')
+    RATELIMIT_STORAGE_URL = os.environ.get('TESTING_REDIS_URL')

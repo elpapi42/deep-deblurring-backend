@@ -13,7 +13,7 @@ from base64 import urlsafe_b64encode
 
 import cloudinary
 
-from deblurrer import create_app, db
+from deblurrer import create_app, db, limiter
 
 @pytest.fixture
 def client():
@@ -21,6 +21,7 @@ def client():
     app = create_app(config='flask_config.Testing')
 
     with app.app_context():
+        limiter.enabled = False
         db.drop_all()
         db.create_all()
 
