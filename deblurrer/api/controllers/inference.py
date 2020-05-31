@@ -21,7 +21,7 @@ from deblurrer import db, limiter
 class InferenceController(Resource):
     """Call the serving API for inference over the supplied image."""
 
-    decorators = [limiter.limit('1 per minute', methods=['POST'])]
+    decorators = [limiter.limit('5/minute;1/second', methods=['POST'])]
 
     def post(self):
         """

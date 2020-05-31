@@ -10,11 +10,13 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from deblurrer.api.schemas import ScoreSchema
 from deblurrer.api.models import Example
-from deblurrer import db
+from deblurrer import db, limiter
 
 
 class ScoreController(Resource):
     """Assign a user subjective score to a resource in db."""
+
+    decorators = [limiter.limit('1/second', methods=['PUT'])]
 
     def put(self):
         """
