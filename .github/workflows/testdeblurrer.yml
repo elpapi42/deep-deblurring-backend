@@ -31,6 +31,9 @@ jobs:
         postgresql db: ${{ secrets.DATABASE_NAME }}
         postgresql user: ${{ secrets.DATABASE_USER }}
         postgresql password: ${{ secrets.DATABASE_PASSWORD }}
+      
+    - name: Setup Redis
+      uses: zhulik/redis-action@1.1.0
     
     - name: Install dependencies
       run: |
@@ -41,5 +44,6 @@ jobs:
     - name: Test with pytest
       run: |
         export TESTING_DATABASE_URI=${{ secrets.DATABASE_URI }}
+        export TESTING_REDIS_URL=${{ secrets.REDIS_URL }}
         export SECRET_KEY=${{ secrets.SECRET_KEY }}
         pytest
