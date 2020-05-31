@@ -15,11 +15,13 @@ from flask_restful import Resource, abort
 from cloudinary import uploader
 
 from deblurrer.api.models import Example
-from deblurrer import db
+from deblurrer import db, limiter
 
 
 class InferenceController(Resource):
     """Call the serving API for inference over the supplied image."""
+
+    decorators = [limiter.limit('1 per minute', methods=['POST'])]
 
     def post(self):
         """

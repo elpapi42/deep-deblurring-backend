@@ -23,10 +23,7 @@ cors = CORS()
 marsh = Marshmallow()
 db = SQLAlchemy()
 migrate = Migrate()
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=['5/minute', '1/second'],
-)
+limiter = Limiter(key_func=get_remote_address)
 
 from deblurrer.api import api_bp
 
