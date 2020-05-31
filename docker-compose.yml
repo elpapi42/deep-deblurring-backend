@@ -1,5 +1,15 @@
 version: "3.7"
 services:
+    
+    # This redis is setup without auth
+    # this is just for local testing
+    deblurring-redis:
+        image: redis:latest
+        ports:
+            - 7001:6379
+        networks:
+            - deep-deblurring
+        container_name: deblurring-redis
 
     deblurring-database:
         image: postgres:latest
@@ -24,6 +34,7 @@ services:
             - .:/deep-deblurring-backend
         depends_on:
             - deblurring-database
+            - deblurring-redis
         container_name: deblurring-backend
     
 networks:
