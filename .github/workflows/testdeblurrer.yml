@@ -31,6 +31,9 @@ jobs:
         postgresql db: ${{ secrets.DATABASE_NAME }}
         postgresql user: ${{ secrets.DATABASE_USER }}
         postgresql password: ${{ secrets.DATABASE_PASSWORD }}
+      
+    - name: Setup Redis
+      uses: zhulik/redis-action@1.1.0
     
     - name: Install dependencies
       run: |
