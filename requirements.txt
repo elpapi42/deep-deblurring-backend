@@ -11,4 +11,5 @@ redis
 gunicorn
 psycopg2
 cloudinary
+pillow
 sentry-sdk[flask]

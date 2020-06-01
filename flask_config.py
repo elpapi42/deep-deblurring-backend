@@ -18,7 +18,7 @@ class Production(object):
 
     SERVING_URL = os.environ.get('SERVING_URL')
 
-    MAX_CONTENT_LENGTH = 4 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
 
 class Testing(Production):
     TESTING = True
