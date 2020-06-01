@@ -46,10 +46,10 @@ class InferenceController(Resource):
         input_bytes = input_bytes.getvalue()
 
         # Sends image to inference engine for processing
-        # output_bytes = self.predict_image(input_bytes)
+        output_bytes = self.predict_image(input_bytes)
 
         # Converts Bytes to PIL Image and resize to original size
-        output_bytes = io.BytesIO(input_bytes)
+        output_bytes = io.BytesIO(output_bytes)
         output_image = Image.open(output_bytes)
         output_image = output_image.resize(original_size)
 
