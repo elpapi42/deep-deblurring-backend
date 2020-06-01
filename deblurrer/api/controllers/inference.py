@@ -8,11 +8,13 @@ import requests
 import base64
 import imghdr
 import uuid
+import io
 
 from flask import make_response, request, jsonify
 from flask import current_app as app
 from flask_restful import Resource, abort
 from cloudinary import uploader
+from PIL import Image, UnidentifiedImageError
 
 from deblurrer.api.models import Example
 from deblurrer import db, limiter
@@ -31,14 +33,34 @@ class InferenceController(Resource):
             json response with the result of inference
         """
         input_image = self.validate_image(request.files.get('image'))
-        
+
+        # Limits files size to 1024 and stores original size
+        # For upsample the resulting image later
+        original_size = input_image.size
+        input_image.thumbnail([1024, 1024])
+
+        # Get bytes from resized and validated image
+        input_bytes = io.BytesIO()
+        input_image.save(input_bytes, input_image.format)
+        input_bytes = input_bytes.getvalue()
+
         # Sends image to inference engine for processing
-        output_image = self.predict_image(input_image)
-        
+        output_bytes = self.predict_image(input_bytes)
+
+        # Converts Bytes to PIL Image and resize to original size
+        output_bytes = io.BytesIO(output_bytes)
+        output_image = Image.open(output_bytes)
+        output_image = output_image.resize(original_size)
+
+        # Write the PIL image to bytes again
+        output_bytes = io.BytesIO()
+        output_image.save(output_bytes, input_image.format)
+        output_bytes = output_bytes.getvalue()
+
         # Upload the images to cloudinary
         rid, input_url, output_url = self.upload_to_cloudinary(
-            input_image,
-            output_image,
+            input_bytes,
+            output_bytes,
         )
 
         # Create and commit new example to the database
@@ -65,23 +87,30 @@ class InferenceController(Resource):
             image_file (FileIO): file to validate
 
         Returns:
-            validated image file bytes
+            validated pillow image
         """
+        # Check if the image was not supplied
         if (image_file is None):
             abort(
                 400,
                 message='Image was not supplied',
             )
-        
-        # Checks if the file is an image of supported types
-        image_file = image_file.read()
-        if (not imghdr.what(file=None, h=image_file) in {'png', 'jpg', 'jpeg'}):
+
+        try:
+            image_pil = Image.open(image_file)
+        except UnidentifiedImageError:
             abort(
                 400,
                 message='Invalid file',
             )
 
-        return image_file
+        if (not image_pil.format in {'PNG', 'JPG', 'JPEG'}):
+            abort(
+                400,
+                message='Invalid file',
+            )
+
+        return image_pil
 
     def predict_image(self, image):
         """
