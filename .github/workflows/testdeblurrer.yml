@@ -46,4 +46,6 @@ jobs:
         export TESTING_DATABASE_URI=${{ secrets.DATABASE_URI }}
         export TESTING_REDIS_URL=${{ secrets.REDIS_URL }}
         export SECRET_KEY=${{ secrets.SECRET_KEY }}
+        export MAX_IMAGE_SIZE=5
+        export MAX_IMAGE_RESOLUTION=1024
         pytest
