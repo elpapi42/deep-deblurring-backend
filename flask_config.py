@@ -18,7 +18,9 @@ class Production(object):
 
     SERVING_URL = os.environ.get('SERVING_URL')
 
-    MAX_CONTENT_LENGTH = 4 * 1024 * 1024
+    # MAX_IMAGE_SIZE is on Megabytes
+    MAX_CONTENT_LENGTH = int(os.environ.get('MAX_IMAGE_SIZE')) * 1024 * 1024
+    MAX_IMAGE_RESOLUTION = int(os.environ.get('MAX_IMAGE_RESOLUTION'))
 
 class Testing(Production):
     TESTING = True

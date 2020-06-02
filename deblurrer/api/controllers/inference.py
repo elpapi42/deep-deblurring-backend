@@ -8,11 +8,13 @@ import requests
 import base64
 import imghdr
 import uuid
+import io
 
 from flask import make_response, request, jsonify
 from flask import current_app as app
 from flask_restful import Resource, abort
 from cloudinary import uploader
+from PIL import Image, UnidentifiedImageError
 
 from deblurrer.api.models import Example
 from deblurrer import db, limiter
@@ -31,10 +33,10 @@ class InferenceController(Resource):
             json response with the result of inference
         """
         input_image = self.validate_image(request.files.get('image'))
-        
+
         # Sends image to inference engine for processing
         output_image = self.predict_image(input_image)
-        
+
         # Upload the images to cloudinary
         rid, input_url, output_url = self.upload_to_cloudinary(
             input_image,
@@ -65,23 +67,40 @@ class InferenceController(Resource):
             image_file (FileIO): file to validate
 
         Returns:
-            validated image file bytes
+            validated image bytes
         """
+        # Check if the image was not supplied
         if (image_file is None):
             abort(
                 400,
                 message='Image was not supplied',
             )
-        
-        # Checks if the file is an image of supported types
-        image_file = image_file.read()
-        if (not imghdr.what(file=None, h=image_file) in {'png', 'jpg', 'jpeg'}):
+
+        try:
+            image = Image.open(image_file)
+        except UnidentifiedImageError:
             abort(
                 400,
                 message='Invalid file',
             )
 
-        return image_file
+        if (not image.format in {'PNG', 'JPG', 'JPEG'}):
+            abort(
+                400,
+                message='Invalid file',
+            )
+        
+        max_res = app.config.get('MAX_IMAGE_RESOLUTION')
+        if (image.width > max_res or image.height > max_res):
+            abort(
+                400,
+                message='Image resolution too big',
+            )
+
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, image.format)
+
+        return image_bytes.getvalue()
 
     def predict_image(self, image):
         """
