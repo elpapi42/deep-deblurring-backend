@@ -34,34 +34,13 @@ class InferenceController(Resource):
         """
         input_image = self.validate_image(request.files.get('image'))
 
-        # Limits files size to 1024 and stores original size
-        # For upsample the resulting image later
-        original_size = input_image.size
-        original_format = input_image.format
-        input_image.thumbnail([1024, 1024])
-
-        # Get bytes from resized and validated image
-        input_bytes = io.BytesIO()
-        input_image.save(input_bytes, input_image.format)
-        input_bytes = input_bytes.getvalue()
-
         # Sends image to inference engine for processing
-        output_bytes = self.predict_image(input_bytes)
-
-        # Converts Bytes to PIL Image and resize to original size
-        output_bytes = io.BytesIO(output_bytes)
-        output_image = Image.open(output_bytes)
-        output_image = output_image.resize(original_size)
-
-        # Write the PIL image to bytes again
-        output_bytes = io.BytesIO()
-        output_image.save(output_bytes, input_image.format)
-        output_bytes = output_bytes.getvalue()
+        output_image = self.predict_image(input_image)
 
         # Upload the images to cloudinary
         rid, input_url, output_url = self.upload_to_cloudinary(
-            input_bytes,
-            output_bytes,
+            input_image,
+            output_image,
         )
 
         # Create and commit new example to the database
@@ -88,7 +67,7 @@ class InferenceController(Resource):
             image_file (FileIO): file to validate
 
         Returns:
-            validated pillow image
+            validated image bytes
         """
         # Check if the image was not supplied
         if (image_file is None):
@@ -98,27 +77,30 @@ class InferenceController(Resource):
             )
 
         try:
-            image_pil = Image.open(image_file)
+            image = Image.open(image_file)
         except UnidentifiedImageError:
             abort(
                 400,
                 message='Invalid file',
             )
 
-        if (not image_pil.format in {'PNG', 'JPG', 'JPEG'}):
+        if (not image.format in {'PNG', 'JPG', 'JPEG'}):
             abort(
                 400,
                 message='Invalid file',
             )
         
         max_res = app.config.get('MAX_IMAGE_RESOLUTION')
-        if (image_pil.width > max_res or image_pil.height > max_res):
+        if (image.width > max_res or image.height > max_res):
             abort(
                 400,
                 message='Image resolution too big',
             )
 
-        return image_pil
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, image.format)
+
+        return image_bytes.getvalue()
 
     def predict_image(self, image):
         """
