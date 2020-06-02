@@ -110,6 +110,13 @@ class InferenceController(Resource):
                 400,
                 message='Invalid file',
             )
+        
+        max_res = app.config.get('MAX_IMAGE_RESOLUTION')
+        if (image_pil.width > max_res or image_pil.height > max_res):
+            abort(
+                400,
+                message='Image resolution too big',
+            )
 
         return image_pil
 
