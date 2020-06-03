@@ -32,10 +32,10 @@ class InferenceController(Resource):
         Returns:
             json response with the result of inference
         """
-        input_image = self.validate_image(request.files.get('image'))
+        input_image, input_format = self.validate_image(request.files.get('image'))
 
         # Sends image to inference engine for processing
-        output_image = self.predict_image(input_image)
+        output_image = self.predict_image(input_image, input_format)
 
         # Upload the images to cloudinary
         rid, input_url, output_url = self.upload_to_cloudinary(
@@ -67,7 +67,7 @@ class InferenceController(Resource):
             image_file (FileIO): file to validate
 
         Returns:
-            validated image bytes
+            validated image bytes, and the original encoding
         """
         # Check if the image was not supplied
         if (image_file is None):
@@ -100,14 +100,15 @@ class InferenceController(Resource):
         image_bytes = io.BytesIO()
         image.save(image_bytes, image.format)
 
-        return image_bytes.getvalue()
+        return image_bytes.getvalue(), image.format
 
-    def predict_image(self, image):
+    def predict_image(self, image, output_format):
         """
         Send image to deblurring inference engine.
 
         Args:
             image (bytes): Image to deblur
+            output_format (str): The encoding for the output image (PNG, JPEG...)
 
         Returns
             Deblurred image bytes
@@ -137,10 +138,19 @@ class InferenceController(Resource):
             )
         # Inference engine returns URL Safe B64 Encoding
         # decodes Base64URL to Bytes
-        image = preds['predictions'][0]
-        image = base64.urlsafe_b64decode(image)
+        image_bytes = preds['predictions'][0]
+        image_bytes = base64.urlsafe_b64decode(image_bytes)
+        image_buffer = io.BytesIO(image_bytes)
 
-        return image
+        # Converts JPEG to whatever format the original image was supplied
+        # Only if required
+        image = Image.open(image_buffer)
+        if (image.format != output_format):
+            image_buffer = io.BytesIO() # clean Bytes Buffer
+            image.save(image_buffer, output_format)
+            image_bytes = image_buffer.getvalue()
+
+        return image_bytes
 
     def upload_to_cloudinary(self, input_image, output_image):
         """
