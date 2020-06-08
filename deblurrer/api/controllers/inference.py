@@ -13,6 +13,7 @@ import io
 from flask import make_response, request, jsonify
 from flask import current_app as app
 from flask_restful import Resource, abort
+from sqlalchemy.exc import OperationalError
 from cloudinary import uploader
 from PIL import Image, UnidentifiedImageError
 
@@ -43,10 +44,15 @@ class InferenceController(Resource):
             output_image,
         )
 
-        # Create and commit new example to the database
-        example = Example(rid, input_url, output_url)
-        db.session.add(example)
-        db.session.commit()
+        # We will not stop the service due to database unaviability
+        # It is not a critical service in this case
+        try:
+            # Create and commit new example to the database
+            example = Example(rid, input_url, output_url)
+            db.session.add(example)
+            db.session.commit()
+        except OperationalError:
+            pass
 
         return make_response(
             jsonify({

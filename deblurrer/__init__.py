@@ -6,6 +6,7 @@
 
 import os
 from os.path import join, dirname
+from time import sleep
 
 import cloudinary
 import sentry_sdk
@@ -69,7 +70,15 @@ def create_app(config='flask_config.Production'):
     with app.app_context():
         app.register_blueprint(api_bp, url_prefix='/api')
 
-        # Create tables for models
-        db.create_all()
+        # Connect to database
+        tries = 5
+        while tries > 0:
+            try:
+                # Create tables for models
+                db.create_all()
+                tries = 0
+            except:
+                tries += -1
+                sleep(10)
 
         return app
